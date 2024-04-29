@@ -1,4 +1,6 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react"
+import { selectUser, selectUsers, updateUser } from "./usersSlice"
+import { type RootState } from "../../app/store"
 
 interface Geo {
   lat: number
@@ -39,12 +41,36 @@ export const usersApiSlice = createApi({
   endpoints: build => ({
     getUser: build.query<UserType, string>({
       query: id => `/${id}`,
+      /**
+       * The provided API supports only GET methods
+       * When the query get's the user data replaces it with the updated data from the store
+       * then updates's the cache, to simulate a real update.
+       */
+      async onQueryStarted(arg, { updateCachedData, getState, queryFulfilled }) {
+        try {
+          const { data } = await queryFulfilled
+          if (data) {
+            const store = getState() as RootState
+            const user = selectUser(store, arg)
+            updateCachedData(draft => user)
+          }
+        } catch (error) {
+          //
+        }
+      },
       providesTags: (result, error, id) => [{ type: "user", id }],
     }),
+    /**
+     * Get's all users
+     */
     getUsers: build.query<UserType[], number>({
       query: () => ``,
       providesTags: (result, error, id) => [{ type: "users", id }],
     }),
+    /**
+     * Updates the user in the API (not working).
+     * To simulate a working API, saves the changes in the store, to be used in @getUser
+     */
     updateUser: build.mutation<UserType[], UserType>({
       query: user => ({
         url: `/${user.id}`,
@@ -54,7 +80,10 @@ export const usersApiSlice = createApi({
           "Content-Type": "application/json",
         },
       }),
-      onCacheEntryAdded(arg, { dispatch }) {},
+      onCacheEntryAdded(arg, { dispatch }) {
+        //When the cache is updated, update the store
+        dispatch(updateUser(arg))
+      },
       invalidatesTags: (result, error, user) => [{ type: "user", id: user.id }],
     }),
   }),

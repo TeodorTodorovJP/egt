@@ -1,9 +1,21 @@
-import { Users } from "./features/users/Users"
 import { Flex, Layout } from "antd"
-import Sider from "antd/es/layout/Sider"
 import { Content, Footer, Header } from "antd/es/layout/layout"
+import { Outlet, useLocation } from "react-router-dom"
 
 const App = () => {
+  const location = useLocation()
+
+  const headers = {
+    "/": "Current Users",
+    "/todo": "Todos",
+  }
+
+  let headerText = headers["/"]
+  if (location.pathname in headers) {
+    let currentPath = location.pathname as keyof typeof headers
+    headerText = headers[currentPath]
+  }
+
   const headerStyle: React.CSSProperties = {
     textAlign: "center",
     color: "#fff",
@@ -11,14 +23,6 @@ const App = () => {
     paddingInline: 48,
     lineHeight: "64px",
     backgroundColor: "#4096ff",
-  }
-
-  const contentStyle: React.CSSProperties = {
-    textAlign: "center",
-    minHeight: 120,
-    lineHeight: "120px",
-    color: "#fff",
-    backgroundColor: "#0958d9",
   }
 
   const footerStyle: React.CSSProperties = {
@@ -39,9 +43,9 @@ const App = () => {
     <Flex gap="middle" wrap="wrap">
       <Layout style={layoutStyle}>
         <Layout>
-          <Header style={headerStyle}>Current Users</Header>
+          <Header style={headerStyle}>{headerText}</Header>
           <Content style={{}}>
-            <Users />
+            <Outlet />
           </Content>
           <Footer style={footerStyle}>EGT Digital</Footer>
         </Layout>

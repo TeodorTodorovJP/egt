@@ -1,23 +1,56 @@
 import { Field, Form, Formik, type FormikHelpers } from "formik"
 import { useGetUserQuery, useUpdateUserMutation, type UserType } from "./usersApiSlice"
-import { Button, Input, Space, Typography, Flex, Form as AntForm } from "antd"
+import { Button, Input, Space, Typography, Flex, Form as AntForm, Spin, Result } from "antd"
 import { UserOutlined } from "@ant-design/icons"
 import userSchema from "./validationSchema"
+import { memo } from "react"
+import { useNavigate } from "react-router-dom"
 
-export const UserForm = ({ userId }: { userId: string }) => {
+export const UserForm = memo(({ userId }: { userId: string }) => {
   const { data: user, isError, isLoading, isSuccess } = useGetUserQuery(userId)
   const [updateUser, mutationState] = useUpdateUserMutation()
+
+  /** Access Router */
+  const navigate = useNavigate()
+
   const onSubmit = (values: UserType, formikHelpers: FormikHelpers<UserType>) => {
     updateUser(values)
-    formikHelpers.resetForm({ values: user })
     formikHelpers.setSubmitting(false)
+  }
+
+  if (isError || mutationState.isError) {
+    return (
+      <Result
+        status="warning"
+        title="There are some problems with your operation."
+        extra={
+          <Button
+            type="primary"
+            key="console"
+            onClick={() => {
+              window.location.reload()
+            }}
+          >
+            Reload
+          </Button>
+        }
+      />
+    )
+  }
+
+  if (isLoading || mutationState.isLoading) {
+    return (
+      <Spin tip="Loading" size="large">
+        <div className="content" />
+      </Spin>
+    )
   }
 
   if (user) {
     return (
       <div style={{ position: "relative" }}>
         <Flex justify="center" align="center" style={{ flexDirection: "column", position: "relative" }}>
-          <Button htmlType="button" style={{ alignSelf: "end" }}>
+          <Button htmlType="button" style={{ alignSelf: "end" }} onClick={() => navigate("/todo")}>
             See posts
           </Button>
           <Typography.Title level={2} style={{ alignSelf: "start", marginTop: "-10px" }}>
@@ -27,6 +60,7 @@ export const UserForm = ({ userId }: { userId: string }) => {
 
         <Formik
           initialValues={user}
+          enableReinitialize
           validationSchema={userSchema}
           onSubmit={(values, formikHelpers) => onSubmit(values, formikHelpers)}
         >
@@ -203,4 +237,4 @@ export const UserForm = ({ userId }: { userId: string }) => {
   }
 
   return null
-}
+})
