@@ -4,20 +4,24 @@ import { Button, Input, Space, Typography, Flex, Form as AntForm, Spin, Result }
 import { UserOutlined } from "@ant-design/icons"
 import userSchema from "./validationSchema"
 import { memo } from "react"
-import { useNavigate } from "react-router-dom"
+import { useLocation, useNavigate } from "react-router-dom"
+import { Button as CustomButton } from "../../app/components/Button"
 
 export const UserForm = memo(({ userId }: { userId: string }) => {
-  const { data: user, isError, isLoading, isSuccess } = useGetUserQuery(userId)
+  const { data: user, isError, isLoading } = useGetUserQuery(userId)
   const [updateUser, mutationState] = useUpdateUserMutation()
+  const location = useLocation()
 
   /** Access Router */
   const navigate = useNavigate()
+  const usersScreen = location.pathname === "/"
 
   const onSubmit = (values: UserType, formikHelpers: FormikHelpers<UserType>) => {
     updateUser(values)
     formikHelpers.setSubmitting(false)
   }
 
+  // Not tested
   if (isError || mutationState.isError) {
     return (
       <Result
@@ -28,7 +32,7 @@ export const UserForm = memo(({ userId }: { userId: string }) => {
             type="primary"
             key="console"
             onClick={() => {
-              window.location.reload()
+              navigate(0)
             }}
           >
             Reload
@@ -50,9 +54,9 @@ export const UserForm = memo(({ userId }: { userId: string }) => {
     return (
       <div style={{ position: "relative" }}>
         <Flex justify="center" align="center" style={{ flexDirection: "column", position: "relative" }}>
-          <Button htmlType="button" style={{ alignSelf: "end" }} onClick={() => navigate("/todo")}>
-            See posts
-          </Button>
+          {usersScreen && <CustomButton onClick={() => navigate(`/posts/${user.id}`)} label="See posts" />}
+          {!usersScreen && <CustomButton onClick={() => navigate(-1)} label="Go back" />}
+
           <Typography.Title level={2} style={{ alignSelf: "start", marginTop: "-10px" }}>
             {user.name}
           </Typography.Title>
@@ -77,7 +81,7 @@ export const UserForm = memo(({ userId }: { userId: string }) => {
                   <AntForm.Item
                     label="Personal Name"
                     validateStatus={errors.name ? "error" : undefined}
-                    help={errors.name ? errors.name : null}
+                    help={errors.username ? errors.username : null}
                   >
                     <Field type="text" name="name" as={Input} prefix={<UserOutlined />} />
                   </AntForm.Item>
@@ -203,7 +207,7 @@ export const UserForm = memo(({ userId }: { userId: string }) => {
                     validateStatus={errors.company?.catchPhrase ? "error" : undefined}
                     help={errors.company?.catchPhrase ? errors.company?.catchPhrase : null}
                   >
-                    <Field type="text" name="company.catchPhrase" as={Input} />
+                    <Field type="text" name="company.catchPhrase" as={Input.TextArea} />
                   </AntForm.Item>
 
                   <AntForm.Item
@@ -235,6 +239,4 @@ export const UserForm = memo(({ userId }: { userId: string }) => {
       </div>
     )
   }
-
-  return null
 })

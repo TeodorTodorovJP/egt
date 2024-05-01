@@ -63,15 +63,51 @@ export const usersApiSlice = createApi({
     /**
      * Get's all users
      */
+    getUsersOld: build.query<UserType[], number>({
+      query: () => ``,
+      providesTags: (result, error, id) => [{ type: "users", id }],
+      async onQueryStarted(arg, { updateCachedData, getState, queryFulfilled }) {
+        try {
+          const { data } = await queryFulfilled
+          if (data) {
+            const store = getState() as RootState
+            const user = selectUser(store, arg)
+            updateCachedData(draft => {
+              const updated = draft.map(draftedUser => {
+                if (user.id === String(arg)) {
+                  return user
+                }
+                return draftedUser
+              })
+              return updated
+            })
+          }
+        } catch (error) {
+          //
+        }
+      },
+    }),
     getUsers: build.query<UserType[], number>({
       query: () => ``,
       providesTags: (result, error, id) => [{ type: "users", id }],
+      async onQueryStarted(arg, { updateCachedData, getState, queryFulfilled }) {
+        try {
+          const { data } = await queryFulfilled
+          if (data) {
+            const store = getState() as RootState
+            const { users } = store.users
+            updateCachedData(draft => (users && users.length ? users : draft))
+          }
+        } catch (error) {
+          //
+        }
+      },
     }),
     /**
      * Updates the user in the API (not working).
      * To simulate a working API, saves the changes in the store, to be used in @getUser
      */
-    updateUser: build.mutation<UserType[], UserType>({
+    updateUser: build.mutation<UserType, UserType>({
       query: user => ({
         url: `/${user.id}`,
         method: "PUT",
@@ -80,11 +116,15 @@ export const usersApiSlice = createApi({
           "Content-Type": "application/json",
         },
       }),
+      // transformResponse is not applicable for the task because it does not provide dispatch
       onCacheEntryAdded(arg, { dispatch }) {
         //When the cache is updated, update the store
         dispatch(updateUser(arg))
       },
-      invalidatesTags: (result, error, user) => [{ type: "user", id: user.id }],
+      invalidatesTags: (result, error, user) => [
+        { type: "user", id: user.id },
+        { type: "users", id: 10 },
+      ],
     }),
   }),
 })
