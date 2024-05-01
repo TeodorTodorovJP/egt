@@ -3,6 +3,7 @@ import App from "./App"
 import { createBrowserRouter, RouterProvider, Navigate } from "react-router-dom"
 import Counter from "./features/counter/Counter"
 import { Users } from "./features/users/Users"
+import { Posts } from "./features/posts/Posts"
 
 const RouterWrap = () => {
   const router = createBrowserRouter([
@@ -16,8 +17,8 @@ const RouterWrap = () => {
           children: [
             { index: true, element: <Users /> },
             {
-              path: "todo",
-              element: <div>Todo</div>,
+              path: "posts/:id",
+              element: <Posts />,
             },
             {
               path: "*",
