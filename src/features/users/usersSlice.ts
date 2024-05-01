@@ -14,9 +14,11 @@ export const usersSlice = createAppSlice({
   name: "users",
   initialState,
   reducers: create => ({
+    /** Fills all users.*/
     addAllUsers: create.reducer((state, action: PayloadAction<UserType[]>) => {
       state.users = action.payload
     }),
+    /** Updates a single user.*/
     updateUser: create.reducer((state, action: PayloadAction<UserType>) => {
       const userIndex = state.users.findIndex(user => user.id === action.payload.id)
       state.users[userIndex] = action.payload

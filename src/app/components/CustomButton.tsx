@@ -1,4 +1,4 @@
-import { Button as AntButton } from "antd"
+import { Button } from "antd"
 
 interface CustomButtonProps {
   onClick: () => void
@@ -8,8 +8,8 @@ interface CustomButtonProps {
 
 export const CustomButton = ({ onClick, label, disabled }: CustomButtonProps) => {
   return (
-    <AntButton htmlType="button" style={{ alignSelf: "end" }} onClick={onClick} disabled={disabled}>
+    <Button htmlType="button" style={{ alignSelf: "end" }} onClick={onClick} disabled={disabled}>
       {label}
-    </AntButton>
+    </Button>
   )
 }

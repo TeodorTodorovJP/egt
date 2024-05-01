@@ -1,6 +1,7 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react"
-import { selectUser, selectUsers, updateUser } from "./usersSlice"
 import { type RootState } from "../../app/store"
+import { setError } from "../../errorSlice"
+import { selectUser, updateUser } from "./usersSlice"
 
 interface Geo {
   lat: number
@@ -43,70 +44,47 @@ export const usersApiSlice = createApi({
       query: id => `/${id}`,
       /**
        * The provided API supports only GET methods
-       * When the query get's the user data replaces it with the updated data from the store
-       * then updates's the cache, to simulate a real update.
+       * When the post is updated, the tags here will be invalidated
+       * this will trigger a new query, after 'queryFulfilled' we replace
+       * the returned value with what we stored.
        */
-      async onQueryStarted(arg, { updateCachedData, getState, queryFulfilled }) {
+      async onQueryStarted(arg, { updateCachedData, getState, queryFulfilled, dispatch }) {
         try {
           const { data } = await queryFulfilled
           if (data) {
+            // Get the store
             const store = getState() as RootState
+            // Get the user from the store
             const user = selectUser(store, arg)
+            // Update the cached data with the stored user
             updateCachedData(draft => user)
           }
         } catch (error) {
-          //
+          dispatch(setError("An error occurred: " + error))
         }
       },
       providesTags: (result, error, id) => [{ type: "user", id }],
     }),
-    /**
-     * Get's all users
-     */
-    getUsersOld: build.query<UserType[], number>({
-      query: () => ``,
-      providesTags: (result, error, id) => [{ type: "users", id }],
-      async onQueryStarted(arg, { updateCachedData, getState, queryFulfilled }) {
-        try {
-          const { data } = await queryFulfilled
-          if (data) {
-            const store = getState() as RootState
-            const user = selectUser(store, arg)
-            updateCachedData(draft => {
-              const updated = draft.map(draftedUser => {
-                if (user.id === String(arg)) {
-                  return user
-                }
-                return draftedUser
-              })
-              return updated
-            })
-          }
-        } catch (error) {
-          //
-        }
-      },
-    }),
+    /** Fills all users.*/
     getUsers: build.query<UserType[], number>({
       query: () => ``,
       providesTags: (result, error, id) => [{ type: "users", id }],
-      async onQueryStarted(arg, { updateCachedData, getState, queryFulfilled }) {
+      async onQueryStarted(arg, { updateCachedData, getState, queryFulfilled, dispatch }) {
         try {
           const { data } = await queryFulfilled
           if (data) {
             const store = getState() as RootState
             const { users } = store.users
+            // If it finds stored users it will use them instead
+            // Part of the logic for going around the API
             updateCachedData(draft => (users && users.length ? users : draft))
           }
         } catch (error) {
-          //
+          dispatch(setError("An error occurred: " + error))
         }
       },
     }),
-    /**
-     * Updates the user in the API (not working).
-     * To simulate a working API, saves the changes in the store, to be used in @getUser
-     */
+    /** Updates the user. */
     updateUser: build.mutation<UserType, UserType>({
       query: user => ({
         url: `/${user.id}`,
@@ -121,6 +99,7 @@ export const usersApiSlice = createApi({
         //When the cache is updated, update the store
         dispatch(updateUser(arg))
       },
+      // Invalidate for the single user query (getUser) and for all users (getUsers)
       invalidatesTags: (result, error, user) => [
         { type: "user", id: user.id },
         { type: "users", id: 10 },

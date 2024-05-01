@@ -1,19 +1,14 @@
 import { Flex, Layout } from "antd"
 import { Content, Footer, Header } from "antd/es/layout/layout"
 import { Outlet, useLocation } from "react-router-dom"
+import ErrorModal from "./app/components/ErrorModal"
 
 const App = () => {
   const location = useLocation()
 
-  const headers = {
-    "/": "Current Users",
-    "/todo": "Todos",
-  }
-
-  let headerText = headers["/"]
-  if (location.pathname in headers) {
-    let currentPath = location.pathname as keyof typeof headers
-    headerText = headers[currentPath]
+  let headerText = "All 10 Users"
+  if (location.pathname.includes("posts")) {
+    headerText = "User Posts"
   }
 
   const headerStyle: React.CSSProperties = {
@@ -46,6 +41,7 @@ const App = () => {
           <Header style={headerStyle}>{headerText}</Header>
           <Content style={{}}>
             <Outlet />
+            <ErrorModal />
           </Content>
           <Footer style={footerStyle}>EGT Digital</Footer>
         </Layout>

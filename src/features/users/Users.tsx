@@ -1,12 +1,13 @@
 import { useAppDispatch } from "../../app/hooks"
 import { UserForm } from "./UserForm"
 import { useGetUsersQuery } from "./usersApiSlice"
-import { Collapse, type CollapseProps } from "antd"
+import { Collapse, Spin } from "antd"
 import { addAllUsers } from "./usersSlice"
 import { useEffect, useMemo } from "react"
+import { setError } from "../../errorSlice"
 
 export const Users = () => {
-  const { data: users, isError, isLoading } = useGetUsersQuery(10)
+  const { data: users, isError, isLoading, error } = useGetUsersQuery(10)
   const dispatch = useAppDispatch()
 
   useEffect(() => {
@@ -22,17 +23,12 @@ export const Users = () => {
         label: user.name,
         children: <UserForm userId={user.id} />,
       }
-      // Check for users update [JSON.stringify(users)]
-      // Should find where is the problem and why the array reference is not changed
       return decorated
     })
   }, [users])
 
-  const getOpenedUsers = (key: string | string[]) => {
-    console.log("toggled: ", key)
-  }
-
-  if (isError) {
+  if (isError || error) {
+    dispatch(setError("An error occurred: " + error))
     return (
       <div>
         <h1>There was an error!!!</h1>
@@ -42,10 +38,17 @@ export const Users = () => {
 
   if (isLoading) {
     return (
+      <Spin tip="Loading" size="large">
+        <div className="content" />
+      </Spin>
+    )
+  }
+  if (items?.length === 0) {
+    return (
       <div>
-        <h1>Loading...</h1>
+        <h1>No users found!</h1>
       </div>
     )
   }
-  return <Collapse items={items} defaultActiveKey={["1"]} onChange={getOpenedUsers} />
+  return <Collapse items={items} defaultActiveKey={["1"]} />
 }

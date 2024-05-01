@@ -1,6 +1,7 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react"
 import { type RootState } from "../../app/store"
 import { deletePost, selectPost, updatePost } from "./postsSlice"
+import { setError } from "../../errorSlice"
 
 export interface PostType {
   id: string
@@ -25,7 +26,7 @@ export const postsApiSlice = createApi({
        * When the query get's the user data replaces it with the updated data from the store
        * then updates's the cache, to simulate a real update.
        */
-      async onQueryStarted(arg, { updateCachedData, getState, queryFulfilled }) {
+      async onQueryStarted(arg, { updateCachedData, getState, queryFulfilled, dispatch }) {
         try {
           const { data } = await queryFulfilled
           if (data) {
@@ -33,7 +34,7 @@ export const postsApiSlice = createApi({
             updateCachedData(draft => (store.posts.posts.length ? store.posts.posts : draft))
           }
         } catch (error) {
-          //
+          dispatch(setError("An error occurred: " + error))
         }
       },
     }),
@@ -43,7 +44,7 @@ export const postsApiSlice = createApi({
       // When the post is updated, the tags here will be invalidated
       // this will trigger a new query, after 'queryFulfilled' we replace
       // the returned value with what we stored
-      async onQueryStarted(arg, { updateCachedData, getState, queryFulfilled }) {
+      async onQueryStarted(arg, { updateCachedData, getState, queryFulfilled, dispatch }) {
         try {
           // Wait for the query to finish
           const { data } = await queryFulfilled
@@ -64,7 +65,7 @@ export const postsApiSlice = createApi({
             })
           }
         } catch (error) {
-          //
+          dispatch(setError("An error occurred: " + error))
         }
       },
     }),

@@ -1,23 +1,46 @@
-import { Form as AntForm, Button, Flex, Input } from "antd"
-import { Field, Form, Formik, type FormikHelpers } from "formik"
-import { memo } from "react"
+import { Button, Flex } from "antd"
+import { Form, Formik, type FormikHelpers } from "formik"
+import { memo, useState } from "react"
+import ConfirmationModal from "../../app/components/ConfirmationModal"
+import FormTextArea from "../../app/components/FormTextArea"
 import { useDeletePostMutation, useGetPostQuery, useUpdatePostMutation, type PostType } from "./postsApiSlice"
 import postsSchema from "./validationSchema"
-import FormTextArea from "../../app/components/FormTextArea"
 
 export const PostForm = memo(({ postId }: { postId: string }) => {
   const { data: post } = useGetPostQuery(postId)
   const [updateUser] = useUpdatePostMutation()
   const [deleteUser] = useDeletePostMutation()
+  const [isConfirmationModalVisible, setConfirmationModalVisible] = useState(false)
+  const [postForDeletion, setPostForDeletion] = useState<null | PostType>(null)
+
   const onSubmit = (values: PostType, formikHelpers: FormikHelpers<PostType>) => {
-    console.log("submitValues: ", values.title)
     updateUser(values)
     formikHelpers.setSubmitting(false)
   }
 
   const handleDelete = (post: PostType) => {
-    console.log("handleDelete: ", post)
-    deleteUser(post)
+    setConfirmationModalVisible(true)
+    setPostForDeletion(post)
+  }
+
+  const handleConfirmation = () => {
+    if (postForDeletion) {
+      deleteUser(postForDeletion)
+    }
+    setConfirmationModalVisible(false)
+  }
+
+  const handleCancelConfirmation = () => {
+    setPostForDeletion(null)
+    setConfirmationModalVisible(false)
+  }
+
+  if (!post) {
+    return (
+      <div>
+        <h1>No post found!</h1>
+      </div>
+    )
   }
 
   return post ? (
@@ -66,6 +89,11 @@ export const PostForm = memo(({ postId }: { postId: string }) => {
           </Form>
         )}
       </Formik>
+      <ConfirmationModal
+        open={isConfirmationModalVisible}
+        onConfirm={handleConfirmation}
+        onCancel={handleCancelConfirmation}
+      />
     </div>
   ) : (
     <>No post</>

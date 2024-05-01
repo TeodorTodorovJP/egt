@@ -7,10 +7,19 @@ import { postsSlice } from "../features/posts/postsSlice"
 import { quotesApiSlice } from "../features/quotes/quotesApiSlice"
 import { usersApiSlice } from "../features/users/usersApiSlice"
 import { postsApiSlice } from "../features/posts/postsApiSlice"
+import { errorSlice } from "../errorSlice"
 
 // `combineSlices` automatically combines the reducers using
 // their `reducerPath`s, therefore we no longer need to call `combineReducers`.
-const rootReducer = combineSlices(counterSlice, usersSlice, postsSlice, quotesApiSlice, usersApiSlice, postsApiSlice)
+const rootReducer = combineSlices(
+  counterSlice,
+  usersSlice,
+  postsSlice,
+  errorSlice,
+  quotesApiSlice,
+  usersApiSlice,
+  postsApiSlice,
+)
 // Infer the `RootState` type from the root reducer
 export type RootState = ReturnType<typeof rootReducer>
 

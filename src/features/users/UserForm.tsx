@@ -1,17 +1,20 @@
-import { Field, Form, Formik, type FormikHelpers } from "formik"
-import { useGetUserQuery, useUpdateUserMutation, type UserType } from "./usersApiSlice"
-import { Button, Input, Space, Typography, Flex, Form as AntForm, Spin, Result } from "antd"
 import { UserOutlined } from "@ant-design/icons"
-import userSchema from "./validationSchema"
+import { Form as AntForm, Button, Flex, Input, Space, Spin, Typography } from "antd"
+import { Field, Form, Formik, type FormikHelpers } from "formik"
 import { memo } from "react"
 import { useLocation, useNavigate } from "react-router-dom"
 import { CustomButton } from "../../app/components/CustomButton"
 import { FormField } from "../../app/components/FormField"
+import { useAppDispatch } from "../../app/hooks"
+import { setError } from "../../errorSlice"
+import { useGetUserQuery, useUpdateUserMutation, type UserType } from "./usersApiSlice"
+import userSchema from "./validationSchema"
 
 export const UserForm = memo(({ userId }: { userId: string }) => {
   const { data: user, isError, isLoading } = useGetUserQuery(userId)
   const [updateUser, mutationState] = useUpdateUserMutation()
   const location = useLocation()
+  const dispatch = useAppDispatch()
 
   /** Access Router */
   const navigate = useNavigate()
@@ -24,22 +27,11 @@ export const UserForm = memo(({ userId }: { userId: string }) => {
 
   // Not tested
   if (isError || mutationState.isError) {
+    dispatch(setError("An error occurred: " + mutationState.isError))
     return (
-      <Result
-        status="warning"
-        title="There are some problems with your operation."
-        extra={
-          <Button
-            type="primary"
-            key="console"
-            onClick={() => {
-              navigate(0)
-            }}
-          >
-            Reload
-          </Button>
-        }
-      />
+      <div>
+        <h1>There was an error!!!</h1>
+      </div>
     )
   }
 
@@ -48,6 +40,14 @@ export const UserForm = memo(({ userId }: { userId: string }) => {
       <Spin tip="Loading" size="large">
         <div className="content" />
       </Spin>
+    )
+  }
+
+  if (!user) {
+    return (
+      <div>
+        <h1>No data for that user!</h1>
+      </div>
     )
   }
 
