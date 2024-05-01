@@ -5,7 +5,8 @@ import { UserOutlined } from "@ant-design/icons"
 import userSchema from "./validationSchema"
 import { memo } from "react"
 import { useLocation, useNavigate } from "react-router-dom"
-import { Button as CustomButton } from "../../app/components/Button"
+import { CustomButton } from "../../app/components/CustomButton"
+import { FormField } from "../../app/components/FormField"
 
 export const UserForm = memo(({ userId }: { userId: string }) => {
   const { data: user, isError, isLoading } = useGetUserQuery(userId)
@@ -68,59 +69,25 @@ export const UserForm = memo(({ userId }: { userId: string }) => {
           validationSchema={userSchema}
           onSubmit={(values, formikHelpers) => onSubmit(values, formikHelpers)}
         >
-          {({ isSubmitting, dirty, errors, handleReset }) => (
+          {({ isSubmitting, dirty, errors, handleReset, isValid }) => (
             <Form>
               <Flex justify="center" align="center" gap="10px">
                 <Flex style={{ flexDirection: "column" }}>
                   <Typography.Title level={3}>Account info</Typography.Title>
 
-                  <AntForm.Item label="User ID">
-                    <Field type="text" disabled name="id" as={Input} />
-                  </AntForm.Item>
-
-                  <AntForm.Item
-                    label="Personal Name"
-                    validateStatus={errors.name ? "error" : undefined}
-                    help={errors.username ? errors.username : null}
-                  >
-                    <Field type="text" name="name" as={Input} prefix={<UserOutlined />} />
-                  </AntForm.Item>
-
-                  <AntForm.Item
-                    label="User Name"
-                    validateStatus={errors.username ? "error" : undefined}
-                    help={errors.username ? errors.username : null}
-                  >
-                    <Field type="text" name="username" as={Input} />
-                  </AntForm.Item>
+                  <FormField name="id" label="User ID" error={errors.name} disabled />
+                  <FormField name="name" label="Personal Name" error={errors.name} prefix={<UserOutlined />} />
+                  <FormField name="username" label="User Name" error={errors.username} />
                 </Flex>
 
                 <Flex style={{ flexDirection: "column" }}>
                   <Typography.Title level={3}>Contacts</Typography.Title>
 
-                  <AntForm.Item
-                    label="E-mail"
-                    validateStatus={errors.email ? "error" : undefined}
-                    help={errors.email ? errors.email : null}
-                  >
-                    <Field type="text" name="email" as={Input} />
-                  </AntForm.Item>
+                  <FormField name="email" label="E-mail" error={errors.email} />
 
-                  <AntForm.Item
-                    label="Phone"
-                    validateStatus={errors.phone ? "error" : undefined}
-                    help={errors.phone ? errors.phone : null}
-                  >
-                    <Field type="text" name="phone" as={Input} />
-                  </AntForm.Item>
+                  <FormField name="phone" label="Phone" error={errors.phone} />
 
-                  <AntForm.Item
-                    label="Website"
-                    validateStatus={errors.website ? "error" : undefined}
-                    help={errors.website ? errors.website : null}
-                  >
-                    <Field type="text" name="website" as={Input} />
-                  </AntForm.Item>
+                  <FormField name="website" label="Website" error={errors.website} />
                 </Flex>
               </Flex>
 
@@ -131,39 +98,13 @@ export const UserForm = memo(({ userId }: { userId: string }) => {
 
                 <Flex justify="center" align="center" gap="10px">
                   <Flex style={{ flexDirection: "column" }}>
-                    <AntForm.Item
-                      label="Street"
-                      validateStatus={errors.address?.street ? "error" : undefined}
-                      help={errors.address?.street ? errors.address?.street : null}
-                    >
-                      <Field type="text" name="address.street" as={Input} />
-                    </AntForm.Item>
-
-                    <AntForm.Item
-                      label="Suite"
-                      validateStatus={errors.address?.suite ? "error" : undefined}
-                      help={errors.address?.suite ? errors.address?.suite : null}
-                    >
-                      <Field type="text" name="address.suite" as={Input} />
-                    </AntForm.Item>
+                    <FormField name="address.street" label="Street" error={errors.address?.street} />
+                    <FormField name="address.suite" label="Suite" error={errors.address?.suite} />
                   </Flex>
 
                   <Flex style={{ flexDirection: "column" }}>
-                    <AntForm.Item
-                      label="City"
-                      validateStatus={errors.address?.city ? "error" : undefined}
-                      help={errors.address?.city ? errors.address?.city : null}
-                    >
-                      <Field type="text" name="address.city" as={Input} />
-                    </AntForm.Item>
-
-                    <AntForm.Item
-                      label="ZipCode"
-                      validateStatus={errors.address?.zipcode ? "error" : undefined}
-                      help={errors.address?.zipcode ? errors.address?.zipcode : null}
-                    >
-                      <Field type="text" name="address.zipcode" as={Input} />
-                    </AntForm.Item>
+                    <FormField name="address.city" label="City" error={errors.address?.city} />
+                    <FormField name="address.zipcode" label="ZipCode" error={errors.address?.zipcode} />
                   </Flex>
                 </Flex>
               </Flex>
@@ -174,19 +115,8 @@ export const UserForm = memo(({ userId }: { userId: string }) => {
                 </Typography.Title>
                 <AntForm.Item>
                   <Space.Compact size="large">
-                    <AntForm.Item
-                      validateStatus={errors.address?.geo?.lat ? "error" : undefined}
-                      help={errors.address?.geo?.lat ? errors.address?.geo?.lat : null}
-                    >
-                      <Field type="text" name="address.geo.lat" as={Input} prefix="latitude:" />
-                    </AntForm.Item>
-
-                    <AntForm.Item
-                      validateStatus={errors.address?.geo?.lng ? "error" : undefined}
-                      help={errors.address?.geo?.lng ? errors.address?.geo?.lng : null}
-                    >
-                      <Field type="text" name="address.geo.lng" as={Input} prefix="longitude:" />
-                    </AntForm.Item>
+                    <FormField name="address.geo.lat" error={errors.address?.geo?.lat} prefix="latitude:" />
+                    <FormField name="address.geo.lng" error={errors.address?.geo?.lng} prefix="longitude:" />
                   </Space.Compact>
                 </AntForm.Item>
               </Flex>
@@ -194,13 +124,7 @@ export const UserForm = memo(({ userId }: { userId: string }) => {
               <Flex justify="center" align="center" style={{ flexDirection: "column" }}>
                 <Typography.Title level={3}>Company info</Typography.Title>
                 <Flex justify="center" align="center" gap="10px" style={{ flexDirection: "column" }}>
-                  <AntForm.Item
-                    label="Company name"
-                    validateStatus={errors.company?.name ? "error" : undefined}
-                    help={errors.company?.name ? errors.company?.name : null}
-                  >
-                    <Field type="text" name="company.name" as={Input} />
-                  </AntForm.Item>
+                  <FormField name="company.name" label="Company name" error={errors.company?.name} />
 
                   <AntForm.Item
                     label="Catch phrase"
@@ -229,7 +153,7 @@ export const UserForm = memo(({ userId }: { userId: string }) => {
                 >
                   Revert
                 </Button>
-                <Button htmlType="submit" disabled={isSubmitting || !dirty} type="primary">
+                <Button htmlType="submit" disabled={isSubmitting || !dirty || !isValid} type="primary">
                   Submit
                 </Button>
               </Flex>

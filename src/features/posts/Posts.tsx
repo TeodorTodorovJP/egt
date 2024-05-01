@@ -5,7 +5,7 @@ import { useNavigate, useParams } from "react-router-dom"
 import { UserForm } from "../users/UserForm"
 import { selectUser, selectUsers } from "../users/usersSlice"
 import { useAppDispatch, useAppSelector } from "../../app/hooks"
-import { Button as CustomButton } from "../../app/components/Button"
+import { CustomButton } from "../../app/components/CustomButton"
 import { useEffect } from "react"
 import { addAllPosts } from "./postsSlice"
 
@@ -53,11 +53,6 @@ export const Posts = () => {
       children: <UserForm userId={String(userId)} />,
     },
   ]
-
-  /*
-  To be able to delete a post, I need to invalidate useGetUserPostsQuery to receive a updated array
-  This means I will always reload all components 
-  */
 
   return (
     <div>
