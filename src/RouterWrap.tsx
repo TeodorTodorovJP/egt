@@ -1,9 +1,9 @@
 import App from "./App"
 
 import { createBrowserRouter, RouterProvider, Navigate } from "react-router-dom"
-import Counter from "./features/counter/Counter"
 import { Users } from "./features/users/Users"
 import { Posts } from "./features/posts/Posts"
+import Tasks from "./features/tasks/Tasks"
 
 const RouterWrap = () => {
   const router = createBrowserRouter([
@@ -19,6 +19,10 @@ const RouterWrap = () => {
             {
               path: "posts/:id",
               element: <Posts />,
+            },
+            {
+              path: "tasks",
+              element: <Tasks />,
             },
             {
               path: "*",

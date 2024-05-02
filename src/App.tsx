@@ -1,16 +1,23 @@
-import { Flex, Layout } from "antd"
+import { Button, Flex, Layout } from "antd"
 import { Content, Footer, Header } from "antd/es/layout/layout"
-import { Outlet, useLocation } from "react-router-dom"
+import { Outlet, useLocation, useNavigate } from "react-router-dom"
 import ErrorModal from "./app/components/ErrorModal"
+import { CustomButton } from "./app/components/CustomButton"
 
 const App = () => {
   const location = useLocation()
+  const navigate = useNavigate()
+
+  let tasksScreen = false
 
   let headerText = "All 10 Users"
   if (location.pathname.includes("posts")) {
     headerText = "User Posts"
   }
-
+  if (location.pathname.includes("tasks")) {
+    headerText = "Tasks"
+    tasksScreen = true
+  }
   const headerStyle: React.CSSProperties = {
     textAlign: "center",
     color: "#fff",
@@ -18,6 +25,7 @@ const App = () => {
     paddingInline: 48,
     lineHeight: "64px",
     backgroundColor: "#4096ff",
+    position: "relative",
   }
 
   const footerStyle: React.CSSProperties = {
@@ -38,7 +46,15 @@ const App = () => {
     <Flex gap="middle" wrap="wrap">
       <Layout style={layoutStyle}>
         <Layout>
-          <Header style={headerStyle}>{headerText}</Header>
+          <Header style={headerStyle}>
+            {headerText}
+
+            <div style={{ position: "absolute", top: "0px", right: "10px" }}>
+              {!tasksScreen && <CustomButton onClick={() => navigate("/tasks")} label="Go to Tasks" />}
+              {tasksScreen && <CustomButton onClick={() => navigate(-1)} label="Go back" />}
+            </div>
+          </Header>
+
           <Content style={{}}>
             <Outlet />
             <ErrorModal />
