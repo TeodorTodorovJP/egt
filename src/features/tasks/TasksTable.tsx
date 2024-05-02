@@ -21,11 +21,11 @@ const TasksTable = memo(({ filteredTasks }: { filteredTasks: TaskType[] }) => {
   }
 
   const columns = [
-    {
-      title: "User ID",
-      dataIndex: "userId",
-      key: "userId",
-    },
+    // {
+    //   title: "User ID",
+    //   dataIndex: "userId",
+    //   key: "userId",
+    // },
     {
       title: "ID",
       dataIndex: "id",
